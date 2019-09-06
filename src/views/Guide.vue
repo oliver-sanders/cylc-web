@@ -1,6 +1,8 @@
 <template>
-  <v-container>
-    <h1 style="margin:0;">Guide</h1>
+  <v-container grid-list-lg>
+    <p class="display-3 font-weight-thin mb-3">Guide</p>
+
+    <h2 class="font-weight-thin mb-3">Task And Job States</h2>
 
     <!--
       TODO: make sections linkable
@@ -11,119 +13,93 @@
             * stays in a fixed position when scrolling (i.e. position: fixed)
             * tracks scroll position
     -->
-
-    <h2 id="task-and-job-states">
-      Task And Job States
-    </h2>
     <!-- TODO document difference between tasks and jobs -->
-    <div id="card-grid">
-
-      <v-flex
-        md6
-        xs12
-      >
-        <v-card>
-          <v-card-title primary-title>
+    <v-layout row wrap>
+      <v-flex xs12 md12 lg6>
+        <v-card class="mx-auto" flat elevation="1">
+          <v-card-title>
             <p class="display-1 text--primary">Task State Vs Job State</p>
           </v-card-title>
           <v-card-text>
-            <table id="task-job-state-table">
-              <tr>
-                <td>Task</td>
-                <td></td>
-                <td>Job</td>
-              </tr>
-              <tr>
-                <td>
-                  <p>
-                    <!-- TODO - this better -->
-                    The part which is related to the
-                    workflow itself. These are states
-                    which can be triggered off of
-                  </p>
+            <v-data-table
+                hide-actions
+                disable-initial-sort
+                :items="states"
+                :headers="headers">
+              <template v-slot:no-data><span></span></template>
+              <template v-slot:no-results><span></span></template>
+              <template v-slot:headers="props">
+                <tr>
+                  <th
+                    v-for="header in props.headers"
+                    :key="header.text"
+                  >
+                    {{ header.text }}
+                  </th>
+                </tr>
+                <tr>
+                  <td
+                      v-for="header in props.headers"
+                      :key="header.subtitle"
+                      class="text-gray body-1"
+                  >
+                    {{ header.subtitle }}
+                  </td>
+                </tr>
+              </template>
+              <template v-slot:items="props">
+                <td class="text-xs-center">
+                  <task :status="props.item.text" :progress="33" class="headline" />
                 </td>
-                <td></td>
-                <td>
-                  <p>
-                    <!-- TODO - this better -->
-                    The status of a running job
-                    which may or may not be the
-                    same as the task status
-                  </p>
+                <td class="text-xs-center">{{ props.item.text }}</td>
+                <td class="text-xs-center">
+                  <job :status="props.item.text" class="headline" />
                 </td>
-              </tr>
-              <tr
-                v-bind:key="state"
-                v-for="state in states"
-              >
-                <td style="font-size: 2em;">
-                  <task :status="state" progress="33" />
-                </td>
-                <td>
-                  <span>{{ state }}</span>
-                </td>
-                <td style="font-size: 2em;">
-                  <job :status="state" />
-                </td>
-              </tr>
-            </table>
+              </template>
+            </v-data-table>
           </v-card-text>
         </v-card>
       </v-flex>
-
-      <v-flex
-        md5
-        xs8
-      >
-        <v-card>
-          <v-card-title primary-title>
+      <v-flex xs12 md12 lg6>
+        <v-card class="mx-auto" flat elevation="1">
+          <v-card-title>
             <p class="display-1 text--primary">Special Task States</p>
           </v-card-title>
-          <v-card-text>
-            <div id="task-job-special-grid">
-              <div style="font-size: 2em">
-                <task
-                  status="waiting"
-                  :isHeld="true"
-                />
-              </div>
-              <div>
-                <span>Held</span>
-                <br />
-                <span>
-                  When a task is "held" no new job submissions will be made
-                </span>
-              </div>
-            </div>
+          <v-card-text class="my-0 py-0">
+            <v-list three-line>
+              <v-list-tile v-for="specialState in special" :key="specialState.text">
+                <v-list-tile-avatar>
+                  <task
+                    :status="specialState.status"
+                    :isHeld="specialState.isHeld"
+                    class="headline"
+                  />
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title v-html="specialState.text"></v-list-tile-title>
+                  <v-list-tile-sub-title v-html="specialState.description"></v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
           </v-card-text>
         </v-card>
       </v-flex>
-    </div>
+    </v-layout>
 
-    <v-divider></v-divider>
+    <v-divider class="my-1"></v-divider>
 
-    <h2 id="task-and-job-states">
-      Some Other Section
-    </h2>
+    <h2 class="font-weight-thin mb-3">Some Other Section</h2>
 
-    <div id="card-grid">
-
-      <v-flex
-        md6
-        xs12
-      >
-        <v-card>
-          <v-card-title>
-            <p class="display-1 text--primary">Foo</p>
-          </v-card-title>
-          <v-card-text>
-            foo
-          </v-card-text>
-        </v-card>
-      </v-flex>
-
-    </div>
-
+    <v-flex xs12 md12 lg6>
+      <v-card class="mx-auto" flat elevation="1">
+        <v-card-title>
+          <p class="display-1 text--primary">Foo</p>
+        </v-card-title>
+        <v-card-text>
+          foo
+        </v-card-text>
+      </v-card>
+    </v-flex>
   </v-container>
 </template>
 
@@ -139,75 +115,42 @@ export default {
   // TODO: extract task states and descriptions from the GraphQL API
   //       once this is an enumeration.
   data: () => ({
+    headers: [
+      {
+        text: 'Task',
+        subtitle: 'The part which is related to the workflow itself. These are states which can be triggered off of',
+        align: 'center',
+        value: 'text',
+        sortable: false
+      },
+      {
+        text: '',
+        sortable: false
+      },
+      {
+        text: 'Job',
+        subtitle: 'The status of a running job which may or may not be the same as the task status',
+        align: 'center',
+        value: 'text',
+        sortable: false
+      }
+    ],
     states: [
-      'waiting',
-      'submitted',
-      'running',
-      'succeeded',
-      'failed',
-      'submit-failed'
+      { text: 'waiting' },
+      { text: 'submitted' },
+      { text: 'running' },
+      { text: 'succeeded' },
+      { text: 'failed' },
+      { text: 'submit-failed' }
+    ],
+    special: [
+      {
+        text: 'Held',
+        description: 'When a task is "held" no new job submissions will be made',
+        status: 'waiting',
+        isHeld: true
+      }
     ]
   })
 }
 </script>
-
-<style lang="scss">
-  @import '~@/styles/index.scss';
-
-  #card-grid {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 1em;
-
-    > * {
-      margin: 0.5em;
-    }
-
-  }
-
-  #task-job-state-table {
-    text-align: center;
-    /*border-spacing: 1em 0.5em;*/
-    border-spacing: 0;
-
-    p {
-      font-size: 0.6em;
-      line-height: 1.2em;
-      /*color: $grey;*/
-    }
-
-    tr:nth-child(1) {
-      font-size: 2em;
-    }
-
-    tr > td:nth-child(2) {
-      font-size: 1em;
-    }
-
-    tr > td:nth-child(1), tr > td:nth-child(3) {
-      width: 5em;
-    }
-
-    td {
-      padding: 0.1em 0 0.1em 0;
-    }
-
-    td > * {
-      background-color: white;
-    }
-  }
-
-  #task-job-special-grid {
-    font-size: 1.2em;
-    display: flex;
-    align-items: center;
-
-    div:first-child {
-      padding-right: 0.5em;
-    }
-
-    div > span:nth-child(3) {
-      color: $grey;
-    }
-  }
-</style>
