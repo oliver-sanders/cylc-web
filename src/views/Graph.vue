@@ -3,11 +3,11 @@
 </template>
 
 <script>
-import Graph from '@/components/cylc/Graph'
+import Graph2 from '@/components/cylc/Graph2'
 
 export default {
   components: {
-    Graph
+    graph: Graph2
   }
 }
 </script>
