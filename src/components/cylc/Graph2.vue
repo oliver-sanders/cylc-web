@@ -1,19 +1,12 @@
 <template>
   <div class="c-graph">
-    <h1>Graph 2</h1>
-    <p>{{res}}</p>
     <div
       v-for="workflow in workflows"
     >
-      <div
-        class="node"
-        :id="node.id"
+      <graphnode
+        :node="node"
         v-for="node in workflow.nodesEdges.nodes"
-      >
-        {{ node.task.name }}
-        <br/>
-        {{ node.cyclePoint }}
-      </div>
+      ></graphnode>
     </div>
   </div>
 </template>
@@ -23,11 +16,12 @@ import { workflowService } from 'workflow-service'
 import { mixin } from '@/mixins/index'
 import { mapState } from 'vuex'
 import dagre from 'dagre'
+import GraphNode from '@/components/cylc/GraphNode'
 
 const QUERIES = {
   root: `
         {
-          workflows(ids: ["generic"]) {
+          workflows(ids: ["WORKFLOW_ID"]) {
             id
             status
             nodesEdges {
@@ -39,6 +33,7 @@ const QUERIES = {
                   state
                 }
                 state
+                isHeld
                 cyclePoint
                 task {
                   name
@@ -70,20 +65,23 @@ const QUERIES = {
 export default {
   name: 'graph',
 
+  components: {
+    graphnode: GraphNode
+  },
+
   props: {
-    workflowName: {
-      type: String,
-      required: true
-    }
   },
 
   data: () => ({
-    graph: null,
-    res: 'waiting ...',
+    // view stuff
     viewID: '',
     workflowId: '',
     subscriptions: {},
-    isLoading: true
+    isLoading: true,
+
+    // graph stuff
+    graph: null,
+    nodeDimensions: {}
   }),
 
   beforeDestroy () {
@@ -94,7 +92,7 @@ export default {
   },  
 
   created (cy) {
-    this.workflowId = this.workflowName
+    this.workflowId = this.$route.params.workflowid
     this.viewID = `Tree(${this.workflowId}): ${Math.random()}`
     workflowService.register(
       this,
@@ -106,6 +104,9 @@ export default {
 
     this.reset()
 
+    // temporary workaround for a quick proof of concept, re-draw the entire
+    // graph every five seconds
+    this.updateGraph()
     setInterval(() => {
       this.updateGraph()
     }, 5000)
@@ -143,14 +144,25 @@ export default {
       this.graph.setDefaultEdgeLabel(function () { return {} })
     },
 
+    recomputeDimensions () {
+      for (let ele of document.getElementsByClassName('c-graph-node')) {
+        this.nodeDimensions[ele.id] = {
+          width: ele.clientWidth,
+          height: ele.clientHeight
+        }
+      }
+    },
+
     updateGraph () {
-      this.res = 'update'
+      // the graph can be built more incrementally, and be responsive to
+      // changes in the data store rather than hooked up to a timer for for a
+      // simple proof of concept this aught to do
+      this.recomputeDimensions()
+
       const graph = this.graph
 
-      this.res = 'populate'
       this.workflows.forEach((workflow) => {
       })
-      this.res = 'populate2'
       this.workflows.forEach((workflow) => {
         if ( ! workflow.nodesEdges ) {
           return
@@ -162,8 +174,10 @@ export default {
             {
               id: node.id,
               label: node.task.name,
-              width: 100,
-              height: 100
+              //...this.nodeDimensions[node.id],
+              // the draw direction is LR so width and height are swapped
+              width: this.nodeDimensions[node.id].height,
+              height: this.nodeDimensions[node.id].width,
             }
           )
         })
@@ -176,26 +190,20 @@ export default {
         })
       })
 
-      this.res = 'graphing'
       dagre.layout(graph)
 
-      this.res = 'computing nodes'
       var ele
       var graphNode
       graph.nodes().forEach(function (node) {
         graphNode = graph.node(node)
-        console.log('Node:', graphNode)
         ele = document.getElementById(graphNode.id)
         ele.style.top = `${graphNode.x}px`
         ele.style.left = `${graphNode.y}px`
       })
-      this.res = 'computing edges'
       graph.edges().forEach(function (v) {
-        console.log('Edge:', graph.edge(v))
       })
 
       console.log('done')
-      this.res = 'done'
     }
 
   }
@@ -205,9 +213,8 @@ export default {
 
 <style lang="scss">
 .c-graph {
-  .node {
+  .c-graph-node {
     position: absolute;
-    border: 1px solid black;
     top: 0px;
     left: 0px;
   }
