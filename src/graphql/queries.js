@@ -17,6 +17,8 @@ subscription {
     host
     port
     cyclePoints: familyProxies(ids: ["root"]) {
+      state
+      isHeld
       cyclePoint
     }
     taskProxies(sort: { keys: ["cyclePoint"] }) {
@@ -52,6 +54,7 @@ subscription {
       id
       name
       state
+      isHeld
       cyclePoint
       firstParent {
         id

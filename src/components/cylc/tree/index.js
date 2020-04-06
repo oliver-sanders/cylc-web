@@ -1,4 +1,3 @@
-import { extractGroupState } from '@/utils/tasks'
 import { computePercentProgress } from '@/components/cylc'
 
 /**
@@ -117,26 +116,6 @@ function computeTaskProgress (taskProxyNode) {
 }
 
 /**
- * Compute the state of each cycle point node in the list given.
- *
- * The formula used to compute each cycle point state is the same as in Cylc 7, using an enum of task types.
- *
- * After the state is successfully computed, each cycle point node gets an additional property `state`
- * with type string, representing the cycle point state.
- *
- * @param cyclePointNodes {Array} list of cycle point nodes.
- */
-function computeCyclePointsStates (cyclePointNodes) {
-  for (const cyclePointNode of cyclePointNodes) {
-    const childStates = []
-    for (const child of cyclePointNode.children) {
-      childStates.push(child.node.state)
-    }
-    cyclePointNode.node.state = extractGroupState(childStates, false)
-  }
-}
-
-/**
  * Given a GraphQL response workflow, this function will return the data structure
  * expected by the Vue.js tree component.
  *
@@ -210,9 +189,6 @@ function convertGraphQLWorkflowToTree (workflow) {
     }
     computeTaskProgress(taskProxyNode.node)
   }
-
-  // last step now is to calculate the group-state for cycle-points, based on its direct children's states
-  computeCyclePointsStates(rootNode.children)
 
   // return the tree children, excluding the Workflow root node, which is not used by the Cylc UI (same as in Cylc 7).
   return rootNode.children
