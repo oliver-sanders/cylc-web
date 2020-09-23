@@ -78,6 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       :node="workflow"
       :hoverable="hoverable"
       :initialExpanded="expanded"
+      :job-theme="jobTheme"
       v-on:tree-item-created="onTreeItemCreated"
       v-on:tree-item-destroyed="onTreeItemDestroyed"
       v-on:tree-item-expanded="onTreeItemExpanded"
@@ -108,7 +109,8 @@ export default {
     },
     hoverable: Boolean,
     activable: Boolean,
-    multipleActive: Boolean
+    multipleActive: Boolean,
+    jobTheme: String
   },
   components: {
     Task,

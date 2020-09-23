@@ -18,7 +18,8 @@
 const state = {
   drawer: null,
   color: 'success',
-  title: null
+  title: null,
+  jobTheme: null
 }
 
 const mutations = {
@@ -33,6 +34,9 @@ const mutations = {
   },
   setTitle (state, title) {
     state.title = title
+  },
+  setJobTheme (state, jobTheme) {
+    state.jobTheme = jobTheme
   }
 }
 

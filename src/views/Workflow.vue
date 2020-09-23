@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         >
           <tree-component
             :workflows="tree.root.children"
+            :job-theme="jobTheme"
           />
         </v-skeleton-loader>
         <v-skeleton-loader
@@ -132,6 +133,9 @@ export default {
   computed: {
     ...mapState('workflows', ['workflows']),
     ...mapState('user', ['user']),
+    ...mapState({
+      jobTheme: state => `job_theme--${state.app.jobTheme}`
+    }),
     treeWidgets () {
       return Object
         .entries(this.widgets)
