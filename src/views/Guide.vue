@@ -52,34 +52,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <tr>
                 <td>
                   <p>
-                    <!-- TODO - this better -->
-                    The part which is related to the
-                    workflow itself. These are states
-                    which can be triggered off of
+                    The status of the task in the workflow.
                   </p>
                 </td>
                 <td></td>
                 <td>
                   <p>
-                    <!-- TODO - this better -->
-                    The status of a running job
-                    which may or may not be the
-                    same as the task status
+                    The status of a single job submission,
+                    one task can have multiple jobs.
                   </p>
                 </td>
               </tr>
               <tr
-                v-bind:key="state"
-                v-for="state in states"
+                v-bind:key="state.name.name"
+                v-for="state of states"
               >
                 <td style="font-size: 2em;">
-                  <task :status="state"/>
+                  <task :status="state.name"/>
                 </td>
                 <td>
-                  <span>{{ state }}</span>
+                  <span>{{ state.name }}</span>
                 </td>
                 <td style="font-size: 2em;">
-                  <job :status="state" />
+                  <job :status="state.name" />
                 </td>
               </tr>
             </table>
@@ -99,43 +94,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <v-list
               three-line
             >
-              <v-list-tile>
-                  <v-list-tile-avatar>
-                    <task
-                      style="font-size: 2em;"
-                      status="waiting"
-                      :isHeld="true"
-                    />
-                  </v-list-tile-avatar>
-                  <v-list-tile-content>
-                    <v-list-tile-title>
-                      Held
-                    </v-list-tile-title>
-                    <v-list-tile-sub-title>
-                      When a task is "held" no new job submissions will be made
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
+              <v-list-item>
+                <!-- NOTE size should be task icon font-size in pixels -->
+                <v-list-item-avatar rounded=0 size="50">
+                  <task
+                    style="font-size: 2em;"
+                    status="waiting"
+                    :isHeld="true"
+                  />
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Held
+                  </v-list-item-title>
+                  <v-list-item-sub-title>
+                    When a task is "held" no new job submissions will be made
+                  </v-list-item-sub-title>
+                </v-list-item-content>
+              </v-list-item>
 
-              </v-list-tile>
-              <v-list-tile>
-                  <v-list-tile-avatar>
-                    <task
-                      style="font-size: 2em;"
-                      status="waiting"
-                      :isQueued="true"
-                    />
-                  </v-list-tile-avatar>
-                  <v-list-tile-content>
-                    <v-list-tile-title>
-                      Queued
-                    </v-list-tile-title>
-                    <v-list-tile-sub-title>
-                      Task queued for job submission
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
-
-              </v-list-tile>
-
+              <v-list-item>
+                <!-- NOTE size should be task icon font-size in pixels -->
+                <v-list-item-avatar rounded=0 size="50">
+                  <task
+                    style="font-size: 2em;"
+                    status="waiting"
+                    :isQueued="true"
+                  />
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Queued
+                  </v-list-item-title>
+                  <v-list-item-sub-title>
+                    Task queued for job submission
+                  </v-list-item-sub-title>
+                </v-list-item-content>
+              </v-list-item>
             </v-list>
           </v-card-text>
         </v-card>
@@ -172,6 +167,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <script>
 import Task from '@/components/cylc/Task'
 import Job from '@/components/cylc/Job'
+import { TaskStateUserOrder } from '@/model/TaskState.model'
 
 export default {
   components: {
@@ -181,15 +177,7 @@ export default {
   // TODO: extract task states and descriptions from the GraphQL API
   //       once this is an enumeration.
   data: () => ({
-    states: [
-      'waiting',
-      'submitted',
-      'running',
-      'succeeded',
-      'failed',
-      'submit-failed',
-      'expired'
-    ]
+    states: TaskStateUserOrder
   })
 }
 </script>
@@ -214,9 +202,11 @@ export default {
     border-spacing: 0;
 
     p {
-      font-size: 0.6em;
+      margin-left: -0.5em;
+      margin-right: -0.5em;
+      margin-top: 1em;
+      font-size: 1em;
       line-height: 1.2em;
-      /*color: $grey;*/
     }
 
     tr:nth-child(1) {
