@@ -81,6 +81,9 @@ fragment WorkflowTreeAddedData on Added {
 }
 
 fragment WorkflowTreeUpdatedData on Updated {
+  workflow {
+    ...WorkflowData
+  }
   taskProxies (ghosts: true) {
     ...TaskProxyData
   }

@@ -172,6 +172,37 @@ function handleInitialDataBurst (deltas, tree) {
   tree.tallyCyclePointStates()
 }
 
+export function deltaRepr (delta) {
+  const ret = []
+  let state = null
+  let id = null
+  if (delta.added) {
+    if (delta.added.workflow) {
+      id = delta.added.workflow.id
+      state = delta.added.workflow.status
+      if (state) {
+        ret.push(`added(${id}, ${state})`)
+      } else {
+        ret.push(`added(${id})`)
+      }
+    }
+  }
+  state = null
+  id = null
+  if (delta.updated) {
+    if (delta.updated.workflow) {
+      id = delta.updated.workflow.id
+      state = delta.updated.workflow.status
+      if (state) {
+        ret.push(`updated(${id}, ${state})`)
+      } else {
+        ret.push(`updated(${id})`)
+      }
+    }
+  }
+  return ret.join('\n')
+}
+
 /**
  * Handle the deltas. This function receives the new set of deltas, and the tree object. It is assumed
  * the tree has been correctly created. Except for family proxies, it is expected that other elements
@@ -184,6 +215,8 @@ function handleInitialDataBurst (deltas, tree) {
  * @param {CylcTree} tree - Tree object backed by an array and a Map
  */
 function handleDeltas (deltas, tree) {
+  console.log(deltaRepr(deltas))
+  console.log(deltas)
   if (deltas.pruned) {
     applyDeltasPruned(deltas.pruned, tree)
   }
