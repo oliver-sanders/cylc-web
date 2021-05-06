@@ -15,8 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-module.exports = {
-  plugins: {
-    autoprefixer: {}
+import { Enumify } from 'enumify'
+
+/**
+ * Cylc valid job states.
+ *
+ * @see https://cylc.github.io/cylc-admin/proposal-state-names.html#taskjob-states
+ */
+class JobState extends Enumify {
+  static SUBMITTED = new JobState('submitted')
+  static SUBMIT_FAILED = new JobState('submit-failed')
+  static RUNNING = new JobState('running')
+  static SUCCEEDED = new JobState('succeeded')
+  static FAILED = new JobState('failed')
+  static _ = this.closeEnum()
+
+  /**
+   * Constructor.
+   * @param {String} name
+   */
+  constructor (name) {
+    super()
+    this.name = name
   }
 }
+
+export default JobState
