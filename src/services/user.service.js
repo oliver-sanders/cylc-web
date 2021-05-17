@@ -26,7 +26,7 @@ class UserService {
    * @returns {Promise<*>} - a promise that dispatches Vuex action
    */
   getUserProfile () {
-    return axios.get(`${window.location.pathname}/userprofile`).then((response) => {
+    return axios.get(`${window.location.pathname}userprofile`).then((response) => {
       const user = new User(response.data.name, response.data.groups, response.data.created, response.data.admin, response.data.server)
       return store.dispatch('user/setUser', user)
     }).catch((error) => {

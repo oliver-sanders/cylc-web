@@ -24,6 +24,7 @@ import {
 } from '@apollo/client'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { WebSocketLink } from '@apollo/client/link/ws'
+import { setContext } from '@apollo/client/link/context'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import store from '@/store'
 
@@ -34,10 +35,11 @@ import store from '@/store'
  * @private
  */
 export function createGraphQLUrls () {
+  const xsrfTokenMatch = document.cookie.match('\\b_xsrf=([^;]*)\\b')
   // TODO: revisit this and evaluate other ways to build the GraphQL URL - not safe to rely on window.location (?)
-  const baseUrl = `${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}${window.location.pathname}`
-  const httpUrl = `${window.location.protocol}//${baseUrl}graphql`
-  const wsUrl = `${window.location.protocol.startsWith('https') ? 'wss' : 'ws'}://${baseUrl}subscriptions`
+  const baseUrl = `${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}${window.location.pathname}`.replace('index.html', '')
+  const httpUrl = `${window.location.protocol}//${baseUrl}graphql?_xsrf=${xsrfTokenMatch[1]}`
+  const wsUrl = `${window.location.protocol.startsWith('https') ? 'wss' : 'ws'}://${baseUrl}subscriptions?_xsrf=${xsrfTokenMatch[1]}`
   return {
     httpUrl: httpUrl,
     wsUrl: wsUrl
@@ -124,8 +126,23 @@ export function createApolloClient (httpUrl, subscriptionClient) {
     httpLink
   )
 
+  const wsAuthLink = setContext((_, { headers }) => {
+    // add an X-XSRFToken header for hubless token based auth
+    const xsrfToken = document.cookie.match('\\b_xsrf=([^;]*)\\b')
+    const cylcHeaders = {}
+    if (xsrfToken !== undefined) {
+      cylcHeaders['X-XSRFToken'] = xsrfToken
+    }
+    return {
+      headers: {
+        ...headers,
+        ...cylcHeaders
+      }
+    }
+  })
+
   return new ApolloClient({
-    link: link,
+    link: wsAuthLink.concat(link),
     cache: new InMemoryCache(),
     defaultOptions: {
       query: {
