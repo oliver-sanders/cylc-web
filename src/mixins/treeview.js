@@ -36,7 +36,7 @@ const datatree = {
      * @return {string} - the Workflow ID used in this view
      */
     workflowId () {
-      return `${this.user.username}|${this.workflowName}`
+      return `${this.user.owner}|${this.workflowName}`
     },
     /**
      * GraphQL query variables.

@@ -27,7 +27,15 @@ class UserService {
    */
   getUserProfile () {
     return axios.get(`${window.location.pathname}userprofile`).then((response) => {
-      const user = new User(response.data.name, response.data.groups, response.data.created, response.data.admin, response.data.server)
+      const user = new User(
+        response.data.name,
+        response.data.groups,
+        response.data.created,
+        response.data.admin,
+        response.data.server,
+        response.data.owner
+      )
+      store.dispatch('setAlert', response.data)
       return store.dispatch('user/setUser', user)
     }).catch((error) => {
       const alert = new Alert(error.response.statusText, null, 'error')
