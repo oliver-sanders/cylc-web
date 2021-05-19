@@ -35,7 +35,7 @@ import store from '@/store'
  * @private
  */
 export function createGraphQLUrls () {
-  const xsrfTokenMatch = document.cookie.match('\\b_xsrf=([^;]*)\\b')
+  const xsrfTokenMatch = document.cookie.match('\\b_xsrf=([^;]*)\\b') || ''
   // TODO: revisit this and evaluate other ways to build the GraphQL URL - not safe to rely on window.location (?)
   const baseUrl = `${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}${window.location.pathname}`.replace('index.html', '')
   const httpUrl = `${window.location.protocol}//${baseUrl}graphql?_xsrf=${xsrfTokenMatch[1]}`
