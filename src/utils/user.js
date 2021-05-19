@@ -29,15 +29,5 @@
  * @returns {string}
  */
 export function getHubUrl (user) {
-  let hubUrl = '/hub/home'
-  if (user) {
-    let baseUrl = ''
-    const server = user.server
-    const userTokenIdx = server.lastIndexOf('/user')
-    if (userTokenIdx > 0) {
-      baseUrl = server.substring(0, userTokenIdx)
-    }
-    hubUrl = `${baseUrl}${hubUrl}`
-  }
-  return hubUrl
+  return '/hub/home'
 }
